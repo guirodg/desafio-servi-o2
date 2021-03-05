@@ -15,6 +15,8 @@ public class ControleContaService {
     private final ControleContaRepository controleContaRepository;
 
     public ControleConta salvar(ControleConta controleConta) {
+        if (controleConta.getIdConta() <= 0 || controleConta.getLimeteSaque() <=0 || controleConta.getTipoConta().isEmpty())
+            throw new IllegalArgumentException("Preencha todos os campos corretamente!");
         return controleContaRepository.save(controleConta);
     }
 
