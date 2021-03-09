@@ -14,6 +14,11 @@ import org.springframework.web.bind.annotation.*;
 public class ControleContaController {
     private final ControleContaService controleContaService;
 
+    @PostMapping
+    public ResponseEntity<ControleConta> salvar(@RequestBody ControleConta controleConta) {
+        return new ResponseEntity<>(controleContaService.salvar(controleConta), HttpStatus.CREATED);
+    }
+
     @PutMapping
     public ResponseEntity atualizar(@RequestBody ControleConta controleConta) throws JsonProcessingException {
         return new ResponseEntity<>(controleContaService.atualizar(controleConta), HttpStatus.NO_CONTENT);
