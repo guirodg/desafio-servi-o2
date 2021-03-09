@@ -2,6 +2,7 @@ package com.controle.controller;
 
 import com.controle.model.ControleConta;
 import com.controle.service.ControleContaService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,8 +15,7 @@ public class ControleContaController {
     private final ControleContaService controleContaService;
 
     @PutMapping
-    public ResponseEntity atualizar(@RequestBody ControleConta controleConta) {
+    public ResponseEntity atualizar(@RequestBody ControleConta controleConta) throws JsonProcessingException {
         return new ResponseEntity<>(controleContaService.atualizar(controleConta), HttpStatus.NO_CONTENT);
-
     }
 }

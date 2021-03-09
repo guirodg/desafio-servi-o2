@@ -3,18 +3,19 @@ package com.controle.service;
 import com.controle.externo.ContaExterno;
 import com.controle.model.ControleConta;
 import com.controle.repository.ControleContaRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.Optional;
-import java.util.Timer;
-import java.util.TimerTask;
 
 @Service
 @RequiredArgsConstructor
 public class ControleContaService {
     private final ControleContaRepository controleContaRepository;
+    private final KafkaTemplate<String, String> kafkaTemplate;
 
     public ControleConta salvar(ControleConta controleConta) {
         if (controleConta.getIdConta() <= 0 || controleConta.getLimeteSaque() <= 0 || controleConta.getTipoConta().isEmpty())
@@ -22,45 +23,35 @@ public class ControleContaService {
         return controleContaRepository.save(controleConta);
     }
 
-    public ControleConta atualizar(ControleConta controleConta) {
+    public ControleConta atualizar(ControleConta controleConta) throws JsonProcessingException {
         Optional<ControleConta> controle = controleContaRepository.findById(controleConta.getIdConta());
         if (controle.isEmpty())
             throw new IllegalArgumentException("Não existe conta cadastrada");
         controle.get().setLimeteSaque(controle.get().getLimeteSaque() - 1);
 
-        Timer timer = new Timer();
-        final long TEMPO = (1000 * 60);
-        TimerTask tarefa = new TimerTask() {
-            @Override
-            public void run() {
-                if (controle.get().getTipoConta().equals("pessoa fisica"))
-                    controle.get().setLimeteSaque(5);
-
-            }
-        };
-        timer.schedule(tarefa, 1, TEMPO);
-
         if (controle.get().getLimeteSaque() <= 0 && controle.get().getTipoConta().equals("pessoa fisica")) {
             int saldoDescontar = 10;
-
             ContaExterno contaExterna = ContaExterno.builder().id(controleConta.getIdConta()).saldo(saldoDescontar).build();
-            new RestTemplate().put("http://localhost:8080/contas/descontar", contaExterna);
+            ObjectMapper objectMapper = new ObjectMapper();
+            String jsonContaExterna = objectMapper.writeValueAsString(contaExterna);
+            kafkaTemplate.send("TOPIC_CONTA", jsonContaExterna);
         }
 
         if (controle.get().getLimeteSaque() <= 0 && controle.get().getTipoConta().equals("pessoa juridica")) {
             int saldoDescontar = 10;
-
             ContaExterno contaExterna = ContaExterno.builder().id(controleConta.getIdConta()).saldo(saldoDescontar).build();
-            new RestTemplate().put("http://localhost:8080/contas/descontar", contaExterna);
+            ObjectMapper objectMapper = new ObjectMapper();
+            String jsonContaExterna = objectMapper.writeValueAsString(contaExterna);
+            kafkaTemplate.send("TOPIC_CONTA", jsonContaExterna);
         }
 
         if (controle.get().getLimeteSaque() <= 0 && controle.get().getTipoConta().equals("governamental")) {
             int saldoDescontar = 20;
-
             ContaExterno contaExterna = ContaExterno.builder().id(controleConta.getIdConta()).saldo(saldoDescontar).build();
-            new RestTemplate().put("http://localhost:8080/contas/descontar", contaExterna);
+            ObjectMapper objectMapper = new ObjectMapper();
+            String jsonContaExterna = objectMapper.writeValueAsString(contaExterna);
+            kafkaTemplate.send("TOPIC_CONTA", jsonContaExterna);
         }
-
         return controleContaRepository.save(controle.get());
     }
 }

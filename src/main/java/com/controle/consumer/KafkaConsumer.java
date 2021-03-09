@@ -17,13 +17,11 @@ public class KafkaConsumer {
 
     @KafkaListener(topics = "TOPIC_BANCO", groupId = "GROUP_BANCO")
     public void consume(String message) throws JsonProcessingException {
-        System.out.println("Message = " + message);
+        System.out.println("Conta criada seu limite de saque = " + message);
         ObjectMapper objectMapper = new ObjectMapper();
         ControleConta jsonCapturaMsg = objectMapper.readValue(message, ControleConta.class);
-
         ControleConta build = ControleConta.builder().idConta(jsonCapturaMsg.getIdConta())
                 .limeteSaque(jsonCapturaMsg.getLimeteSaque()).tipoConta(jsonCapturaMsg.getTipoConta()).build();
-
         controleContaService.salvar(build);
     }
 }
