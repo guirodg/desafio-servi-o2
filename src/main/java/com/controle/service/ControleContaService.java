@@ -54,4 +54,12 @@ public class ControleContaService {
         }
         return controleContaRepository.save(controle.get());
     }
+
+    public ControleConta atualizarLimiteSaqueInicioDeMes(ControleConta controleConta) {
+        Optional<ControleConta> controle = controleContaRepository.findById(controleConta.getIdConta());
+        if (controle.isEmpty())
+            throw new IllegalArgumentException("Não existe id do controle de conta");
+
+        return controleContaRepository.save(controleConta);
+    }
 }
