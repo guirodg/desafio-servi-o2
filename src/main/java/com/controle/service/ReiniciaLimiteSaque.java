@@ -10,6 +10,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
+import java.util.List;
 import java.util.Optional;
 
 @RequiredArgsConstructor
@@ -22,24 +23,39 @@ public class ReiniciaLimiteSaque {
 
     @Scheduled(fixedDelay = 60000)
     public void verificaControleDeConta() {
-        LocalDate ultimoDia = LocalDate.now().withMonth(3).with(TemporalAdjusters.lastDayOfMonth());
+        LocalDate ultimoDiaMes = LocalDate.now().withMonth(3).with(TemporalAdjusters.lastDayOfMonth());
         log.info("Realizando verificação a cada 1- minuto");
 
-        for (int i = 1; i < 7; i++) {
+        List<ControleConta> controleContas = controleContaRepository.findAll();
+        long count = controleContas.stream().count();
+
+        for (int i = 1; i < count + 1; i++) {
             Optional<ControleConta> pegaIdControle = controleContaRepository.findById((long) i);
             if (pegaIdControle.isEmpty())
                 return;
 
-            if (pegaIdControle.get().getLimeteSaque() <= 0
-                    && LocalDate.now().equals(LocalDate.parse("2021-03-09"))
-                    && pegaIdControle.get().getTipoConta().equals("pessoa fisica")) {
+            int limiteSaque = 0;
+            String tipo = "";
+            if (pegaIdControle.get().getTipoConta().equals("pessoa fisica")) {
+                limiteSaque = 5;
+                tipo = "pessoa fisica";
+            }
+            if (pegaIdControle.get().getTipoConta().equals("pessoa juridica")) {
+                limiteSaque = 50;
+                tipo = "pessoa juridica";
+            }
+            if (pegaIdControle.get().getTipoConta().equals("governamental")) {
+                limiteSaque = 250;
+                tipo = "governamental";
+            }
 
+            if (pegaIdControle.get().getLimeteSaque() <= 0 && LocalDate.now().equals(ultimoDiaMes)) {
                 ControleConta controleConta = ControleConta.builder()
                         .idConta((long) i)
-                        .limeteSaque(5)
-                        .tipoConta("pessoa fisica")
+                        .limeteSaque(limiteSaque)
+                        .tipoConta(tipo)
                         .build();
-                log.info("Limite renovado da conta {}", i);
+                log.info("Limite renovado da conta - pessoa fisica {}", i);
                 controleContaService.atualizarLimiteSaqueInicioDeMes(controleConta);
             }
         }
