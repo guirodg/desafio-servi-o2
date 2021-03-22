@@ -1,5 +1,6 @@
 package com.controle.consumer;
 
+import com.controle.dto.ControleContaRequest;
 import com.controle.model.ControleConta;
 import com.controle.service.ControleContaService;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -19,9 +20,10 @@ public class KafkaConsumer {
     public void consume(String message) throws JsonProcessingException {
         System.out.println("Conta cadastrada com sucesso! seu limite de saque = " + message);
         ObjectMapper objectMapper = new ObjectMapper();
-        ControleConta jsonCapturaMsg = objectMapper.readValue(message, ControleConta.class);
-        ControleConta controleConta = ControleConta.builder().idConta(jsonCapturaMsg.getIdConta())
-                .limeteSaque(jsonCapturaMsg.getLimeteSaque()).tipoConta(jsonCapturaMsg.getTipoConta()).build();
+        ControleContaRequest controleConta = objectMapper.readValue(message, ControleContaRequest.class);
+
+//        ControleConta controleConta = ControleConta.builder().idConta(jsonCapturaMsg.getIdConta())
+//                .limeteSaque(jsonCapturaMsg.getLimeteSaque()).tipoConta(jsonCapturaMsg.getTipoConta()).build();
         controleContaService.salvar(controleConta);
     }
 }

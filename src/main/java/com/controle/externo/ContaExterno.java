@@ -6,6 +6,7 @@ import lombok.Data;
 @Data
 @Builder
 public class ContaExterno {
-    private Long id;
+    private int numeroConta;
+    private int agencia;
     private double saldo;
 }

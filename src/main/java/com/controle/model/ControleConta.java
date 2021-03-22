@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -15,8 +16,9 @@ import javax.persistence.Id;
 @Builder
 public class ControleConta {
     @Id
-    private Long idConta;
+    private int numeroConta;
+    private String cpfCliente;
+    private int agencia;
     private int limeteSaque;
     private String tipoConta;
-
 }

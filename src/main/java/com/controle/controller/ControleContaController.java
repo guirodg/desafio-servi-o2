@@ -1,6 +1,7 @@
 package com.controle.controller;
 
-import com.controle.model.ControleConta;
+import com.controle.dto.ControleContaRequest;
+import com.controle.dto.ControleContaResponse;
 import com.controle.service.ControleContaService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
@@ -15,12 +16,12 @@ public class ControleContaController {
     private final ControleContaService controleContaService;
 
     @PostMapping
-    public ResponseEntity<ControleConta> salvar(@RequestBody ControleConta controleConta) {
-        return new ResponseEntity<>(controleContaService.salvar(controleConta), HttpStatus.CREATED);
+    public ResponseEntity<ControleContaResponse> salvar(@RequestBody ControleContaRequest controleContaRequest) {
+        return new ResponseEntity<>(controleContaService.salvar(controleContaRequest), HttpStatus.CREATED);
     }
 
     @PutMapping
-    public ResponseEntity atualizar(@RequestBody ControleConta controleConta) throws JsonProcessingException {
-        return new ResponseEntity<>(controleContaService.atualizar(controleConta), HttpStatus.NO_CONTENT);
+    public ResponseEntity<ControleContaResponse> atualizar(@RequestBody ControleContaRequest controleContaRequest) throws JsonProcessingException {
+        return new ResponseEntity<>(controleContaService.atualizar(controleContaRequest), HttpStatus.NO_CONTENT);
     }
 }
