@@ -47,8 +47,8 @@ public class ControleContaService {
                     .saldo(saldoDescontar)
                     .build();
             ObjectMapper objectMapper = new ObjectMapper();
-            String jsonContaExterna = objectMapper.writeValueAsString(contaExterna);
-            kafkaTemplate.send("TOPIC_CONTA", jsonContaExterna);
+            String convertObjetoString = objectMapper.writeValueAsString(contaExterna);
+            kafkaTemplate.send("TOPIC_CONTA", convertObjetoString);
         }
 
         if (controle.isPresent()) {

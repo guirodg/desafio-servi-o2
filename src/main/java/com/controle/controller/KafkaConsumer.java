@@ -1,7 +1,6 @@
-package com.controle.consumer;
+package com.controle.controller;
 
 import com.controle.dto.ControleContaRequest;
-import com.controle.model.ControleConta;
 import com.controle.service.ControleContaService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -22,8 +21,6 @@ public class KafkaConsumer {
         ObjectMapper objectMapper = new ObjectMapper();
         ControleContaRequest controleConta = objectMapper.readValue(message, ControleContaRequest.class);
 
-//        ControleConta controleConta = ControleConta.builder().idConta(jsonCapturaMsg.getIdConta())
-//                .limeteSaque(jsonCapturaMsg.getLimeteSaque()).tipoConta(jsonCapturaMsg.getTipoConta()).build();
         controleContaService.salvar(controleConta);
     }
 }
