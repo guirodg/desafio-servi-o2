@@ -7,67 +7,61 @@ import com.controle.externo.ContaExterno;
 import com.controle.mapper.ControleMapper;
 import com.controle.model.ControleConta;
 import com.controle.repository.ControleContaRepository;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
-
 @Service
 @RequiredArgsConstructor
 public class ControleContaService {
+
     private final ControleContaRepository controleContaRepository;
+
     private final KafkaTemplate<String, ContaExterno> kafkaTemplate;
 
     public ControleContaResponse salvar(ControleContaRequest controleContaRequest) {
-
         ControleConta controleConta = ControleMapper.INSTANCE.toModel(controleContaRequest);
         controleContaRepository.save(controleConta);
         ControleContaResponse controleContaResponse = ControleMapper.INSTANCE.toDTO(controleConta);
         return controleContaResponse;
     }
 
-    public ControleContaResponse atualizar(ControleContaRequest controleContaRequest) throws JsonProcessingException {
-        Optional<ControleConta> controle = controleContaRepository.findById(controleContaRequest.getNumeroConta());
-
-        if (controle.get().getLimeteSaque() <= 0) {
+    public ControleContaResponse atualizar(ControleContaRequest controleContaRequest) {
+        ControleConta controle = controleContaRepository.findByCpfCliente(controleContaRequest.getCpfCliente());
+        if (controle.getLimeteSaque() <= 0) {
             int saldoDescontar = 0;
-            if (controle.get().getTipoConta().equalsIgnoreCase("PF"))
+            if (controle.getTipoConta().equalsIgnoreCase("PF"))
                 saldoDescontar = 10;
-            if (controle.get().getTipoConta().equalsIgnoreCase("PJ"))
+            if (controle.getTipoConta().equalsIgnoreCase("PJ"))
                 saldoDescontar = 10;
-            if (controle.get().getTipoConta().equalsIgnoreCase("GOV"))
+            if (controle.getTipoConta().equalsIgnoreCase("GOV"))
                 saldoDescontar = 20;
 
             ContaExterno contaExterna = ContaExterno.builder()
                     .numeroConta(controleContaRequest.getNumeroConta())
-                    .agencia(controle.get().getAgencia())
+                    .agencia(controle.getAgencia())
                     .saldo(saldoDescontar)
                     .build();
-            
             kafkaTemplate.send("TOPIC_CONTA", contaExterna);
         }
 
-        if (controle.isPresent()) {
-            controle.get().setLimeteSaque(controle.get().getLimeteSaque() - 1);
-            controleContaRepository.save(controle.get());
+        if (controle != null) {
+            controle.setLimeteSaque(controle.getLimeteSaque() - 1);
+            controleContaRepository.save(controle);
         }
 
-        ControleContaResponse controleContaResponse = ControleMapper.INSTANCE.toDTO(controle.get());
-
+        ControleContaResponse controleContaResponse = ControleMapper.INSTANCE.toDTO(controle);
         return controleContaResponse;
     }
 
     public ControleConta atualizarLimiteSaqueInicioDeMes(ControleContaRequestLimite controleContaRequestLimite) {
-        Optional<ControleConta> controle = controleContaRepository.findById(controleContaRequestLimite.getNumeroConta());
-        if (controle.isEmpty())
+        ControleConta controle = controleContaRepository.findByCpfCliente(controleContaRequestLimite.getCpf());
+        if (controle == null)
             throw new IllegalArgumentException("Não existe id do controle de conta");
         ControleConta controleConta = ControleMapper.INSTANCE.toModel(controleContaRequestLimite);
-        controleConta.setAgencia(controle.get().getAgencia());
-        controleConta.setCpfCliente(controle.get().getCpfCliente());
-        controleConta.setTipoConta(controle.get().getTipoConta());
+        controleConta.setAgencia(controle.getAgencia());
+        controleConta.setCpfCliente(controle.getCpfCliente());
+        controleConta.setTipoConta(controle.getTipoConta());
         return controleContaRepository.save(controleConta);
     }
 }

@@ -31,24 +31,29 @@ public class ReiniciaLimiteSaque {
 
         int limiteSaque = 0;
         int numeroConta = 0;
+        String cpf = "";
         for (ControleConta conta : controleContas) {
             if (conta.getTipoConta().equalsIgnoreCase("PF")) {
                 limiteSaque = 5;
                 numeroConta = conta.getNumeroConta();
+                cpf = conta.getCpfCliente();
             }
 
             if (conta.getTipoConta().equalsIgnoreCase("PJ")) {
                 limiteSaque = 50;
                 numeroConta = conta.getNumeroConta();
+                cpf = conta.getCpfCliente();
             }
 
             if (conta.getTipoConta().equalsIgnoreCase("GOV")) {
                 limiteSaque = 250;
                 numeroConta = conta.getNumeroConta();
+                cpf = conta.getCpfCliente();
             }
             ControleContaRequestLimite contaRequestLimite = ControleContaRequestLimite.builder()
                     .numeroConta(numeroConta)
                     .limeteSaque(limiteSaque)
+                    .cpf(cpf)
                     .build();
             controleContaService.atualizarLimiteSaqueInicioDeMes(contaRequestLimite);
         }

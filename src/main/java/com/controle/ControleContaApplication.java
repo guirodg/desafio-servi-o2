@@ -6,8 +6,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class ControleContaApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(ControleContaApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(ControleContaApplication.class, args);
+    }
 
 }

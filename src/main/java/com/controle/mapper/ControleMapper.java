@@ -9,6 +9,7 @@ import org.mapstruct.factory.Mappers;
 
 @Mapper(componentModel = "spring")
 public abstract class ControleMapper {
+
     public static final ControleMapper INSTANCE = Mappers.getMapper(ControleMapper.class);
 
     public abstract ControleConta toModel(ControleContaRequest controleContaRequest);

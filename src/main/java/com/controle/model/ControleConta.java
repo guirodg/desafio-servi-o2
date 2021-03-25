@@ -16,8 +16,8 @@ import javax.persistence.Id;
 @Builder
 public class ControleConta {
     @Id
-    private int numeroConta;
     private String cpfCliente;
+    private int numeroConta;
     private int agencia;
     private int limeteSaque;
     private String tipoConta;
