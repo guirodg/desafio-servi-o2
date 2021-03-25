@@ -19,7 +19,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ControleContaService {
     private final ControleContaRepository controleContaRepository;
-    private final KafkaTemplate<String, String> kafkaTemplate;
+    private final KafkaTemplate<String, ContaExterno> kafkaTemplate;
 
     public ControleContaResponse salvar(ControleContaRequest controleContaRequest) {
 
@@ -46,9 +46,8 @@ public class ControleContaService {
                     .agencia(controle.get().getAgencia())
                     .saldo(saldoDescontar)
                     .build();
-            ObjectMapper objectMapper = new ObjectMapper();
-            String convertObjetoString = objectMapper.writeValueAsString(contaExterna);
-            kafkaTemplate.send("TOPIC_CONTA", convertObjetoString);
+            
+            kafkaTemplate.send("TOPIC_CONTA", contaExterna);
         }
 
         if (controle.isPresent()) {
